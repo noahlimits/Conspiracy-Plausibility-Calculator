@@ -58,6 +58,12 @@
             font-size: 16px;
             color: darkgrey;
         }
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: darkgray;
+        }
     </style>
 </head>
 <body>
@@ -69,6 +75,8 @@
         based on the number of conspirators involved and the probability of each conspirator leaking information.
         Larger conspiracies tend to be less sustainable over time, especially if individual participants are prone to leaks.
         Use this calculator to explore how various factors impact the survival of a conspiracy.
+        <br><br>
+        This calculator is based on the work of <b>David Robert Grimes</b> and his paper: <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4728076/" target="_blank">On the Viability of Conspiratorial Beliefs</a>.
     </p>
 
     <div class="input-container">
@@ -77,9 +85,13 @@
     </div>
 
     <div class="input-container">
-        <label for="pValue">Leak Probability per Year (p-value):</label>
-        <input type="range" id="pValue" min="0.0001" max="0.01" step="0.0001" value="0.004" oninput="updatePValueLabel()">
-        <p>p-value: <span id="pValueLabel">0.004</span></p>
+        <label for="pValue">Leak Probability (Trustworthiness Scale):</label>
+        <input type="range" id="pValue" min="1" max="10" step="1" value="5" oninput="updatePValueLabel()">
+        <div class="slider-labels">
+            <span>Extremely Trustworthy (Low Leak Risk)</span>
+            <span>Extremely Untrustworthy (High Leak Risk)</span>
+        </div>
+        <p>Trustworthiness Scale: <span id="pValueLabel">5</span></p>
     </div>
 
     <button onclick="calculateTime()">Calculate Time to Exposure</button>
@@ -89,26 +101,42 @@
     </div>
 
     <div class="description">
-        <h3>Understanding the p-value</h3>
-        <p>The p-value represents the probability that an individual conspirator will leak information per year. The higher the p-value, the more likely it is that any one conspirator will expose the conspiracy. Here's what different p-values imply:</p>
+        <h3>Understanding the Trustworthiness Scale</h3>
+        <p>
+            The slider uses whole numbers (1–10) to represent a trustworthiness scale. 
+            Setting the slider to a lower number means the conspirators are considered more trustworthy (lower chance of leaks), while a higher number indicates a higher likelihood of leaks. 
+            The middle setting of 5 is based on a p-value of 0.004, as proposed in David Robert Grimes' paper.
+        </p>
         <ul>
-            <li><b>Low p-value (e.g., 0.0001)</b>: Conspirators are highly trustworthy or the chances of accidental exposure are very low, meaning the conspiracy can last longer before being exposed.</li>
-            <li><b>High p-value (e.g., 0.01)</b>: Conspirators are more likely to leak information or make mistakes, leading to faster exposure of the conspiracy.</li>
+            <li><b>Low value (1–3)</b>: Conspirators are highly trustworthy, meaning the conspiracy can last longer before being exposed.</li>
+            <li><b>High value (8–10)</b>: Conspirators are more likely to leak information, leading to faster exposure of the conspiracy.</li>
         </ul>
-        <p>Use the slider to adjust the p-value and see how changing the probability of leaks affects how long the conspiracy might last.</p>
+        <p>
+            The slider simplifies the technical p-value for easier understanding, but the concept remains the same.
+        </p>
     </div>
 
     <script>
-        // Function to update the displayed p-value label
+        // Function to map the trustworthiness scale (1-10) to p-values
+        function scaleToPValue(scaleValue) {
+            const minP = 0.001;  // p-value at scale 1 (extremely trustworthy)
+            const maxP = 0.01;   // p-value at scale 10 (extremely untrustworthy)
+            const midP = 0.004;  // p-value at scale 5
+            // Scale map: use a simple linear map for now
+            return minP + ((scaleValue - 1) / 9) * (maxP - minP);
+        }
+
+        // Function to update the displayed slider value
         function updatePValueLabel() {
-            let pValue = document.getElementById("pValue").value;
-            document.getElementById("pValueLabel").innerText = pValue;
+            let scaleValue = document.getElementById("pValue").value;
+            document.getElementById("pValueLabel").innerText = scaleValue;
         }
 
         // Function to calculate time until conspiracy is exposed
         function calculateTime() {
             let conspirators = parseInt(document.getElementById("conspirators").value);
-            let pValue = parseFloat(document.getElementById("pValue").value);
+            let scaleValue = parseInt(document.getElementById("pValue").value);
+            let pValue = scaleToPValue(scaleValue);
 
             // Check if input is valid
             if (conspirators <= 0 || pValue <= 0) {
@@ -120,7 +148,7 @@
             let timeToExposure = Math.log(0.02) / (-conspirators * pValue);
 
             // Display result
-            document.getElementById("result").innerText = `With ${conspirators} conspirators and a p-value of ${pValue}, the conspiracy will likely be exposed after approximately ${timeToExposure.toFixed(2)} years.`;
+            document.getElementById("result").innerText = `With ${conspirators} conspirators and a trustworthiness scale of ${scaleValue}, the conspiracy will likely be exposed after approximately ${timeToExposure.toFixed(2)} years.`;
         }
     </script>
 
