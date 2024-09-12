@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conspiracy Viability Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 16px;
+            color: darkgray;
+        }
+        .input-container {
+            margin: 15px 0;
+        }
+        label {
+            font-size: 16px;
+        }
+        input[type="number"] {
+            width: 100px;
+            padding: 5px;
+            font-size: 16px;
+            margin: 5px;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: darkblue;
+        }
+        button {
+            background-color: darkblue;
+            color: white;
+            padding: 10px 15px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: navy;
+        }
+        .description {
+            margin-top: 20px;
+            font-size: 16px;
+            color: darkgrey;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Conspiracy Viability Calculator</h1>
+
+    <p>
+        This tool helps you estimate how long a conspiracy is likely to last before being exposed, 
+        based on the number of conspirators involved and the probability of each conspirator leaking information.
+        Larger conspiracies tend to be less sustainable over time, especially if individual participants are prone to leaks.
+        Use this calculator to explore how various factors impact the survival of a conspiracy.
+    </p>
+
+    <div class="input-container">
+        <label for="conspirators">Number of Conspirators:</label>
+        <input type="number" id="conspirators" min="1" value="10">
+    </div>
+
+    <div class="input-container">
+        <label for="pValue">Leak Probability per Year (p-value):</label>
+        <input type="range" id="pValue" min="0.0001" max="0.01" step="0.0001" value="0.004" oninput="updatePValueLabel()">
+        <p>p-value: <span id="pValueLabel">0.004</span></p>
+    </div>
+
+    <button onclick="calculateTime()">Calculate Time to Exposure</button>
+
+    <div class="result" id="result">
+        <!-- Result will be displayed here -->
+    </div>
+
+    <div class="description">
+        <h3>Understanding the p-value</h3>
+        <p>The p-value represents the probability that an individual conspirator will leak information per year. The higher the p-value, the more likely it is that any one conspirator will expose the conspiracy. Here's what different p-values imply:</p>
+        <ul>
+            <li><b>Low p-value (e.g., 0.0001)</b>: Conspirators are highly trustworthy or the chances of accidental exposure are very low, meaning the conspiracy can last longer before being exposed.</li>
+            <li><b>High p-value (e.g., 0.01)</b>: Conspirators are more likely to leak information or make mistakes, leading to faster exposure of the conspiracy.</li>
+        </ul>
+        <p>Use the slider to adjust the p-value and see how changing the probability of leaks affects how long the conspiracy might last.</p>
+    </div>
+
+    <script>
+        // Function to update the displayed p-value label
+        function updatePValueLabel() {
+            let pValue = document.getElementById("pValue").value;
+            document.getElementById("pValueLabel").innerText = pValue;
+        }
+
+        // Function to calculate time until conspiracy is exposed
+        function calculateTime() {
+            let conspirators = parseInt(document.getElementById("conspirators").value);
+            let pValue = parseFloat(document.getElementById("pValue").value);
+
+            // Check if input is valid
+            if (conspirators <= 0 || pValue <= 0) {
+                document.getElementById("result").innerText = "Please enter valid inputs.";
+                return;
+            }
+
+            // Calculate time to failure with probability > 98%
+            let timeToExposure = Math.log(0.02) / (-conspirators * pValue);
+
+            // Display result
+            document.getElementById("result").innerText = `With ${conspirators} conspirators and a p-value of ${pValue}, the conspiracy will likely be exposed after approximately ${timeToExposure.toFixed(2)} years.`;
+        }
+    </script>
+
+</body>
+</html>
