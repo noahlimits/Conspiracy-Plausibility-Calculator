@@ -86,12 +86,12 @@
 
     <div class="input-container">
         <label for="pValue">Leak Probability (Trustworthiness Scale):</label>
-        <input type="range" id="pValue" min="1" max="10" step="1" value="5" oninput="updatePValueLabel()">
+        <input type="range" id="pValue" min="1" max="10" step="0.1" value="5" oninput="updatePValueLabel()">
         <div class="slider-labels">
             <span>Extremely Trustworthy (Low Leak Risk)</span>
             <span>Extremely Untrustworthy (High Leak Risk)</span>
         </div>
-        <p>Trustworthiness Scale: <span id="pValueLabel">5</span></p>
+        <p>Leak Probability: <span id="pValueLabel">5.0</span></p>
     </div>
 
     <button onclick="calculateTime()">Calculate Time to Exposure</button>
@@ -103,8 +103,8 @@
     <div class="description">
         <h3>Understanding the Trustworthiness Scale</h3>
         <p>
-            The slider uses whole numbers (1–10) to represent a trustworthiness scale. 
-            Setting the slider to a lower number means the conspirators are considered more trustworthy (lower chance of leaks), while a higher number indicates a higher likelihood of leaks. 
+            The slider uses a smooth scale (1–10) to represent the trustworthiness of conspirators. 
+            A lower value indicates the conspirators are more trustworthy (lower chance of leaks), while a higher value indicates a higher likelihood of leaks. 
             The middle setting of 5 is based on a p-value of 0.004, as proposed in David Robert Grimes' paper.
         </p>
         <ul>
@@ -121,21 +121,19 @@
         function scaleToPValue(scaleValue) {
             const minP = 0.001;  // p-value at scale 1 (extremely trustworthy)
             const maxP = 0.01;   // p-value at scale 10 (extremely untrustworthy)
-            const midP = 0.004;  // p-value at scale 5
-            // Scale map: use a simple linear map for now
             return minP + ((scaleValue - 1) / 9) * (maxP - minP);
         }
 
         // Function to update the displayed slider value
         function updatePValueLabel() {
-            let scaleValue = document.getElementById("pValue").value;
+            let scaleValue = parseFloat(document.getElementById("pValue").value).toFixed(1);
             document.getElementById("pValueLabel").innerText = scaleValue;
         }
 
         // Function to calculate time until conspiracy is exposed
         function calculateTime() {
             let conspirators = parseInt(document.getElementById("conspirators").value);
-            let scaleValue = parseInt(document.getElementById("pValue").value);
+            let scaleValue = parseFloat(document.getElementById("pValue").value);
             let pValue = scaleToPValue(scaleValue);
 
             // Check if input is valid
@@ -148,7 +146,7 @@
             let timeToExposure = Math.log(0.02) / (-conspirators * pValue);
 
             // Display result
-            document.getElementById("result").innerText = `With ${conspirators} conspirators and a trustworthiness scale of ${scaleValue}, the conspiracy will likely be exposed after approximately ${timeToExposure.toFixed(2)} years.`;
+            document.getElementById("result").innerText = `With ${conspirators} conspirators and a leak probability scale of ${scaleValue}, the conspiracy will likely be exposed after approximately ${timeToExposure.toFixed(2)} years.`;
         }
     </script>
 
